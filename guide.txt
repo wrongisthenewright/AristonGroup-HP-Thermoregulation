@@ -1,0 +1,311 @@
+Direct Climate Control
+
+The following instructions are derived from the knowledge, experiments and passion of the users of the forum energeticambiente.it, in particular we have stolen from the competence and patience of @Gruppo!
+
+Premises:
+
+- this guide is focused on the heating scenario, not the cooling one, this is due because the heating scenario is usually the one that causes the higher costs if wrongly configured
+
+- this guide contains  references to the menu numbers of the Ariston group remote controllers (Sensys, Remocon etc., hereinafter referred to as remote controllers), unfortunately the numbering may change depending on the options installed and the versions of the on-board software, in any case we have tried to include the references also in the menu “tree”
+
+- this guide requires that you have read at least the ENTIRE user manual and the ENTIRE installer manual, many of the functions described below require access to the remote controller's technical menu
+
+- You’ll need to read the ENTIRE guide BEFORE starting to doing the tests
+
+- the following settings provide for the scenario in which both the external temp probe is connected to the system and the remote controller is in a heated area of the house, thus permitting to detect the actual room temp, used in the calculations. The guide can be used also in the cases where the external temp is gathered by the remote controller via internet, the algorithm optimization will be less efficient because the temp data downloaded from internet may be slightly different from the real one; at the same time the guide can be followed with systems where the internal temp is not available but you’ll have to configure the system to avoid using that value (eg. using the algorithm that uses only external temp in the calculations)
+
+- the guide is based on a single-zone system, if there are multiple zones present the calculation must be performed in the coldest zone, the logic of the machine during its normal operation is to set the Target T as the target temperature of the zone that requires the most heat, the other zones simply, once they have reached the desired T, will close the zone valves thus limiting the incoming heat.
+The guide is written with Z1 used as “master” zone, if you want to use a different zone for the calculation you’ll need to adapt the menu’ items used in the tests accordingly.
+
+- It is best to set the climate configuration at the beginning of the heating season, when the external and internal temperatures allow the system to operate continuously (so it must not be too hot) but also allow you to "play" with the parameters for some time (so not too cold to avoid comfort problems), another condition is that the Ambient T (internal temperature of the building/room temperature) is around 20°C , so that the radiant elements (heating floors, radiators, etc.) are in an average operating range.
+
+- almost all the parameters configured influence the HP calculation for the Target LWT so you need to operate on a single parameter at the time and double check the previous settings once you modify the others, you may also think that raising the desired room temp (Day or Night temp) to an high value will help to avoid HP shutoffs caused by the house reaching it but you need to take into account the fact that the desired room temp is also used by the algoritm, so if you find “good” values for the other settings with a desired room temp of 25°C then when you’ll lower it to let’s say 21°C you’ll have to see if the rest are still good or need review.
+- the remote controller supply all the needed information and diagnostics to find the right configuration but having an external monitoring system (like HA connected via adapter/ebusd) allow for faster trials and to detect early possible errors so it is not a must but helps.
+
+
+Parameters to configure:
+
+Technical Menu --> Complete Menu --> Zone 1 Parameters --> Zone 1 Settings
+
+4 2 Z1 Settings
+
+4 2 0 Zone 1 temperature range
+	Low Temp
+	High Temp
+
+4 2 1 Thermoregulation
+	Fix Flow T
+	Basic Thermoreg
+	Room T Only
+	Outdoor T Only
+	Room+Outdoor T
+
+Thermoregulation parameters:
+
+4 2 2 Slope 0.2 - 1 (LT); 1 - 3.5 (HT) default 0.6 (LT) - 1.5 (HT)
+4 2 3 Offset -14 ÷ +14 (HT); -7 ÷ +7 (LT) default 0°C
+4 2 4 Room Influence Proportional 0 - 20°C default 2°C (LT) - 10°C (HT)
+4 2 5 Max T 20°C ÷ 45°C (LT); 20°C ÷ 70°C (HT) default 45°C (LT) - 60°C (HT)
+4 2 6 Min T 20°C ÷ 45°C (LT); 20°C ÷ 70°C (HT) default 20°C (LT) - 20°C (HT)
+4 2 9 Heat request mode
+	Standard
+	RT Time Programs Exclusion
+	Forcing Heat Demand
+
+Terminology
+Ta or Ambient T = ambient/room temp as detected by internal probe/thermostat
+LWT= leaving water temp, the T at which the water leaves the HP (or the internal module on split systems)
+EWT=entering eater temp, the return water T that came back to the HP after circulating in the house
+Tmin = LWT at which the compressor can run at the lowest frequency (ideally 18Hz) without starting off/on cycles
+Min T = the actual lower LWT limit imposed to the HP with the parameter 4.2.6 
+Tmax = maximum temp wanted for LWT
+Min T = the actual upper LWT limit imposed to the HP with the parameter 4.2.5
+TRV= temperature regulating valve, not part of the HP/Hybrid system but present on some installation
+
+
+
+The sequence of operations is:
+
+- prepare the system for testing
+- execute the tests
+1) find the Tmin suitable for the particular system
+2) adjust the parallel shift (offset) and set the TMax
+3) adjust the slope of the curve
+4) adapt the proportional influence to your needs
+
+System Setup
+
+If you have a hybrid system (HP + boiler) it is necessary, for the duration of the tests and calibration, to configure the system to use only the HP, avoiding the intervention of the boiler. Once the final values have been set, the hybrid configuration will be reactivated and the system will independently manage the 2 heat sources based on the environmental conditions, energy costs and system parameters.
+Likewise, if you have a domestic hot water boiler, if possible, deactivate the function while performing the tests.
+If you have solar based water heaters (PV electricity production excluded) or other systems that sent heating energy to the system in parallel with the HP the calculation made by the system may be inaccurate so you need to take these into account when doing the tests.
+
+It may be useful to deactivate the additional heat pump resistors if installed (even if they should not intervene in the mid-seasons and at low flow temperatures).
+
+Set the temperature range first, this must be adjusted on the basis of the complete system (parameter 4.2.0): high temperature (4.2.0=1, hereinafter HT) if there are radiators or fan coils, low temperature (4.2.0=0, hereinafter LT) if there is only underfloor heating, in particular cases you can try an unconventional setting, for example with a low temperature range even in the presence of FC that you want to run continuously or for very long time period (be careful of any minimum probes that block them if LWT is too low).
+
+To identify the Tmin (minimum LWT ), the rest of the system must be able to dissipate the heat produced by the HP, so the zone valves must be all opened and any additional circulators/pumps activated. Similarly, it is necessary to prevent external systems from intervening to block the HP (if the LWT is raised externally above the threshold set by us or by the machine the HP will stop), allowing the system to dispose of all the heat produced in these test conditions. All the zone valves, the thermostatic heads/TRV of the radiant and radiators must be opened, and the FCs must be started if present.
+
+Set then the following parameters to a value adequate for the tests, this will insure that the procedure will find the right values, afterwards, during the procedure we’ll change also these to custom value but at the start some configuraiton must be set to “force” the algorithm. 
+Set the parallel shift – offset to a minimum value (-14 if HT system or -7 if LT system)
+The curve slope parameter must also be set to a low value (4.2.3=1 if HT or 0.2 if LT).
+Proportional environment influence, must be zero (0) , especially if the ambient temperature is fairly high at the beginning of the season 4.2.4=0.
+
+It may be useful, in some cases, if you are using the pump modulation feature (pump speed control -17.3.3 configured as modulating) to set the minimum pump modulation settings, “Min PWM Pump“ to 60% (Technical Menu-->Complete Menu-->HEAT PUMP SYSTEM PARAMETER (or HEATPUMP TDM)-→ Heating - 1, param 17.3.5)  rising the default 40% value because the default value can cause the LWT to oscillate too much, alternatively set the modulation of the pump to a fixed high speed and not modulating during the execution of the tests (17.3.3)
+
+Executing the tests
+
+Start with the search of the optimal settings seeking the right Tmin parameter first, i.e. the minimum flow temperature that can keep the HP running without incurring continuous On/Off. This temperature is a function of the entire system, the climate zone and the building, so there is no default value.
+
+1) Tmin
+
+There are different ways to calculate the Tmin, regardless of the mode chosen, it is necessary to periodically check the temperature calculated by the machine for the delivery (LWT target) (Technical Menu-->Complete Menu-->HEAT PUMP SYSTEM PARAMETERS-->Board Diagnostics -1 Inputs-->Set Heating Temp, 17.14.1) this is the temp calculated by the heat pump and at which the machine will try to stabilize . When we are with the compressor around 18Hz frequency then the LWT will be the Tmin we’llwant to set. 
+Check the specific delivery temp (Heating delivery temp, 17.14.2) if you are already at 18Hz frequency and if this were 1 degree higher than the calculated one then the latter will be the Tmin to set given that the machine would never be able to reach the LWT target without turning off the compressor.
+
+If it's hot outside, for example around 16°C or more, then you can get to 18/19 Hz, if it's 10 degrees outside it's fine to stop at 20Hz
+
+To search for the right value for TMin, the simplest way (if supported by the heat pump in question) is to force the machine to run at 18Hz for a period of time sufficient to stabilize the LWT temperature (a few hours) then record it, to do this you need to activate the manual mode (in order to deactivate all the machine's automatic functions) Technical Menu-->Heat Pump Parameters-->Manual Mode2-->Activation of Manual Mode (17.7.0) to ON, and, subsequently, activating the rating mode in heating, Technical Menu-->Heat Pump Parameters-->Manual Mode2-->Heating rating mode (17.7.3 or 12.7.1). Be aware that there are many systems available with many different SW version and menu structure, try to find the right menu item with the help of the installer manual. 
+
+Once the function is activated, adjust the compressor frequency to 18Hz via Technical Menu-->Heat Pump Parameters-->Manual Mode2-->Compressor frequency setting. As reported in the manual, in this mode the heat pump keeps active the protection logics, therefore the compressor frequency could differ from the one set (eg. oil return/scavenge) , it is necessary to check it periodically in the Technical Menu-->Complete Menu-->HEAT PUMP SYSTEM PARAMETERS--> HP3 Diagnostics --> Compressor frequency (17.2.1) otherwise you may find a wrong Tmin calculated/detected while the HP is running faster than minimum.
+
+After a few hours of running the LWT should stabilize at a certain value, check the actual LWT (Heating delivery temp, 17.14.2) and record it, this will be the Tmin value you need to set.
+
+If the rating mode is not available on the HP in question, other options can be used to find the Tmin, in these scenario since we’re not able to set our wanted lower frequency we need to operate backwards: forche the machine to produce a fixed LWT for some time then analyze the compressor frequency at that temperature, then forche the HP to lower the LWT and check again the HP compressor frequency and so on unitil we can run the HP for some time at that LWT/compressor frequency range, then we will know the Tmin at which the HP can run near or at 18Hz.
+
+One technique is forcing the HP using the parameters LWT Max (4.2.5) and LWT Min (4.2.6) by adjusting the LWT Min to the minimum possible, and then gradually lowering the LWT Max until reaching a condition in which the HP can remain on continuously with the lowest possible compressor frequency value (ideally 18Hz). If the HP starts to off/on cycles raise the LWT Max to an higer value and let the system find a steady state.
+
+Another way is to force the machine  by keeping the LWT min just below the LWT Max and observing the machine during the various iterations like the following:
+
+cycle 1: LWT min 34 LWT Max 35
+cycle 2: LWT min 33 LWT Max 34
+cycle 3: LWT min 32 LWT Max 33
+cycle 4: LWT min 31 LWT Max 32 etc.
+(note never set LWT min=LWT Max because it happened that the software went crazy)
+*always lower LWT min first and then pass to change LWT Max*
+
+When using this tecnique, to avoid loosing too much time, try to find LWT min and LWT Max starting values that you have seen used by the machine when it was running around the lower frequency ranges (eg. if your HP was running yesterday at 25Hz. With an actual LWT of 36°C then start with LWT min= 35°C and LWT Max=36°C and then iterate.
+
+A further alternative, could be to configure the HP with the thermoregulation set to fixed delivery temperature (Fixef Flow T) mode via menu 4.2.1 by setting the value 0 and then working on parameter T setpoint for Z1 (4.0.2) to regulate the temperature by lowering or raising it while keeping the compressor frequency under control.
+
+Another way is to set the HP to forced heat demand (4.2.9=2) and lower the Target room temp (Day Temp or Night Temp Z1 based on your schedule) to 10 degrees to ensure that the target LWT settles on the LWT min, regardless of the TMax set, because the HP would behave like a fixed flow settings that corresponds to the LWT min.
+
+For TMin search modes other than using the heating rating mode, during the test cycles, move only 1 degree at a time because if the actual flow temperature (Heating flow temperature, 17.14.2) exceeds the calculated flow temperature value (Target temperature 17.14.1) by more than 2 degrees, the heat pump switches off, causing a loss of time because you need to re-stabilise the steady state with the compressor frequency.
+
+During adjustments, also pay attention to any oil return cycles that may occur if the HP works at low frequencies, the HP will performs one cycle every 4 hours or so in these runing configurations. In these cycles, to force the recovery of the lubricant that is naturally dissolved in the gas during normal operation, the HP starts suddenly raising the compressor frequency, up to almost the maximum value and then lowering it again: this significantly modifies the system parameters (very high actual LWT, which can exceed the LWT target, in these cirumstances it is possible/normal for the HP to switch off for some time.
+If this happens, wait half an hour for the frequency to re-establish the steady state and then start again from where you left off.
+
+An adequate period of time must pass between one adjustment and the next, to allow the entire system to re-establish a balance; depending on the system, this could take a few hours (the thermal inertia of underfloor heating is greater than that of FC alone, for example).
+
+It can be helpful to understand what is the total thermal energy required by the system, if you have this value you can compare it with the thermal power produced at a specific time by the HP, this value can be calculated using the following formula (thermal kW)
+
+[LWT (HP1 Diagnostics - 17.10.1) – EWT (HP1 Diagnostics - 17.10.2)] * flow lt/min (HP2 Diagnostics - 17.11.3) * 60 *1,163
+ 
+NB the data calculated in this way is only indicative since the remote controller rounds the decimals for temperatures and therefore cannot be used for example to calculate the COP.
+
+If the instantaneous thermal energy produced by the HP is higher than the one that can be dissipated by the heating circuit/system for a certain time, the HP will sense a rise in the EWT (the water returning to the HP will not be “cooled” enough by the house) and then will tend to stop continuously because at a certain point the LWT-EWT delta will be lower than the value configured on the system, usually 5°C.
+
+When a Tmin value is reached that allows the machine to remain on, without continuous On-Off, with a low frequency (around 18Hz) the correct TMin value has been obtained. Set the Min T parameter (4.2.6) to the value identified or, if you find sporadic off/onn events then set to 1 degree more.
+
+For a couple of days, you need to check that the Tmin found is actually correct, checking that the HP can "hold" it.
+Assuming that we have found a Tmin of 30 at a compressor frequency of 19Hz and with the LWT target  T (17.14.1) of 30 degrees, at this point we try to lower the Tmin again bringing it to 29 and waiting at least 1 hour, if we see that the HP does not turn off and we obtain a frequency of 18Hz then we check the target T again, if this is 29 but the actual delivery t (17.10.1) remains at 30° then we note that the working conditions are beyond what the machine can do as it cannot reach 29 degrees of delivery because it cannot reach 17Hz of frequency (not contemplated by the manifacturer, that hard sets the minimum limit to 18Hz)
+
+Once the correct Tmin has been identified then set it as LWT Min (4.2.6) parameter, you can move on to optimize the other parameters, possibly calibrating them again once the season has started.
+
+2) Shift (offset) and TMax
+
+Once the correct Tmin has been identified, we move on to the Offset/Shift. In the HP manual you can find the Curve Graph figure, this depict the relation between external temp and LWT, for a given line the Shift can be represented as another straight line parallel to the base line but higher or lower than this by X degrees centigrade where X is precisely the Offset.
+Before starting the right offset search, it is necessary to set an average slope value of the curve to ensure that this has little influence on the results of the flow calculation that the machine continuously performs.  The slope value will be re-calculated after defining the offset/shift, doing the opposite (set the right slope and then moving to the shift) can cause erroneus values or take more time to get the optimal settings.
+
+You now nee to set the desired room temp (z1 Day) to your liking because the offset will need to be calibrated to take the house as near as possible to the wanted temperature. 
+
+The tests to determine the offset should be carried out only in the central part of the day (say from 11,00 to 16,00 ), when the external temperature is almost constant and therefore its variations are not amplified in the LWT calculations too much by  the slope of the curve.
+
+In Low Temperature Range (4.2.0=Low Temperature) the INITIAL value to set is Offset=20°C-Tmin, for example if a Tmin of 30 is identified then the Shift (offset 4.2.3) at 20-tmin=-10 (which becomes -7 given that in the Low temperature range the Offset/Shift goes from -7 to +7). For those in the high temperature range the starting base of the Shift will be Offset=30-Tmin, with obviously the relative limits (-14 / +14).
+
+Once an offset has been set, the LWT Max (Max T, 4.2.5) can be raised, for example to 45 degrees (check the maximum temp accepted by the system on the supplier's documentation/manuals, in particular for radiant floors not equipped with a by-pass TRV can be damaged by too warmer water flows), the frequency of the heat pump will begin to rise once the upper limit has been removed, so evaluate how the heating system behaves for a couple of days, always in the central part of the day; if the room temp is detected as being too high, then the heat pump is working too much and the Shift must therefore be lowered.
+
+The desired Room T (TDay or TNight) in an optimal regulation should be reached very rarely, because when it is exceeded by 0.3°C it causes the HP to switch off. The ideal regulation requires that the climate algorithm calculates a flow temperature (between TMin and TMax) such that the house has a comfortable temperature without ever reaching the Desired Room T. If we want 21.5°C in the house we will have to arrive at a system regulation that causes the machine to send to the house a quantity of heat (energy) such that the house heats up until it approaches 21.5°C  and then stabilizes in that area, without possibly exceeding the threshold of 21.5 + 0.3°C. If necessary (during the day, if you have good sun exposure, it can happens that you’ll exceed the 21.5°C setpoint) at this point we can set a TDay of 22°C (half a degree more than desired) but paying attention to the fact that by intervening on the desired Ambient T the curve used by the HP systems to calculate LWT target is moved parallel by itself (desired room temp is one of the parameters used by the algorithm), given that the line that represents the calculation of the Target T is a function of the desired T (refer to the graph in the manuals, the starting point of the drawn lines is placed on a graduated line, that point represents the Desired T) this half degree of additional request inevitably modifies the climate curve, even if only slightly, so this modification must be monitored over time.
+
+If you notice that during the day the heat pump switches on and off a lot due to reaching the desired ambient temperature, and if in these conditions the heat pump is not working at the LWTmin. delivery temperature (i.e. the delivery temperature can be further reduced), then you can intervene on the regulation by removing 1°C from the parallel movement and, possibly later, if more heat is needed in the house, by regulating the desired ambient temperature to 1 degree more.
+
+Let's take an example: if we set the desired temperature on the remote controller to 21.5°C but the temperature in the house fluctuates between 21.8 and 21.2, this often means that the amount of energy supplied to the building is too high, higher than the amount dispersed by the house, in these circumstances therefore the room temperature increases until it exceeds the setpoint (21.5°C).
+
+If the current LWT is already at the minimum temperature set in the HP (searched with the system above) or if we already are at the lowest offset configurable on the system  there is no room for intervention, the HP cannot send less heat to the building without turning off. We then need to find other ways to reduce the energy consumption, there is no default rule, one way is to run the HP for all the time it can run without starting to off/on cycle, even setting a room temp a couple of degrees more than needed then turning it off (via schedule) for some time, until the rooom temp slowly descend to a couple of degrees lower than the desired setting and then start again the HP. This scenario will have some impact on the comfort so a balance between energy savings and comfort will be needed.
+
+If instead we detect that, with a room temp too high, the compressor runs above 20Hz/25Hz then we can try to reduce the amount of heat sent to the building by reducing the frequency of the compressor, since we cannot act directly on this parameter in the normal operation of the system, we will have to intervene by moving the curve down by 1°C (reducing the offset/shift parameter), if on the remote controller at the moment you have for example -4 you set it to -5. Once this adjustment has been made, after some time check if the desired room temp is reached, if it’s still high then you can try again loweing the offset. Keep in mind that many hours must pass for every offset setting to allow the system (HP+House) to stabilize, do not rush. 
+Once found the right offset (always in the central part of the day) you may want to set the desired room temp half a °C or 1°C higher on the remote controller, the HP will have a lot of trouble reaching that value, exactly what we want to obtain (an HP that runs continuously).
+
+
+3) Slope of the curve
+
+The slope of the curve (Thermoregulation Curve) is literally the slope of the straight line in the Curve graph that the heat pump follows to calculate the LWT target for any  given external temp. As the external temperature varies the algorithm calculate a new LWT target. The steeper the curve (therefore the greater its value) the more the machine will react to a lowering of the External T by raising the Delivery T to compensate. Colder outside means, after a while, colder inside, so the machine sends hotter water to compensate.
+
+Now we have a regulation that, thanks to the offset configuration leads us to have good comfort at home in the central hours of the day, now we move on to "fixing" the other hours of the day as well (early morning, late evening and night).
+
+For a “under”-insulated house, set the starting slope between (curve/Slope 4.2.2) 0.6 or 0.7, the greater the insulation the lower the slope required since the building will disperse less heat despite the colder air outside. It may happen that, when it is colder outside (typically at night or early in the morning) the actual room temp rises too much, even reaching the Desired T (thereby turning off the heat pump) this is symptom of a climate curve with a slope that is too high (see above) so it should be decreased from 0.6 to 0.5 etc. Let some time pass between different settings, even a few days, and check again.
+
+If, instead , the internal temperature tends to decrease during the cold hours of the day, then the slope must be increased. During these checks you must also check that the value of the Max T (Max T, 4.2.5) has not been reached by the LWT Target 12.16.1 because in this case the HP can’t raise the LWT to a better setting because is capped py the Tmax setting. In this case, raise the Tmax again – keep in mind your house limits if needed - and repeat the cycle.
+
+
+4) Proportional influence (4.2.4)
+
+If you leave the machine working 24 hours a day this parameter is less important, and this is the reason is set as last.
+If you instead prefer to use the heat pump for example more during the day due to the presence of photovoltaic panels (with the insulation and the building system that allow it) then this parameter can be useful to quickly bring (at the expense of instantaneous electric energy consumption) the temperature in the house to a pleasant value when the heat pump is turned on in the morning.
+The parameter in fact modifies the slope of the curve (it raises the LWT of the HP to a value higher than the one calculated only using the External Temp as a parameter) so the more the room temperature measured by the controller in the area differs from the desired room temperature (Tday or TNight based on the program) the more the HP will raise the LWT value. 
+If thhe proportional influence value is raised, the HP will be more reactive in bringing the room temperature back to the desired value, on the other hand, as mentioned, it will make the instantaneous consumption of the machine higher.
+
+The proportional influence can be useful in presence of PV because you can “trick” the HP to run more aggressively during the day and slow down after sunset: to do so you can schedule a program that has the desired room temp to be kept constantly during the 24h and then, when the sun shines and you have a good PV production you can set a “custom” desired room temp for some hours, in this way the HP will detect a difference betwee actual room temp and desired room temp and increase HP frequency accordingly.
+
+This parameter is also a nuosance during the initial tests, in fact using the remote controller a lot increases the detected room temperature because the sensor is close to the remote controller knob and buttons and therefore is influenced by the heat of the hands, causing the delivery temperature to be unbalanced (it drops because the remote controller senses more "heat" in the room and therefore requests less heat), which is why this parameter should be placed last on the list of the settings to be found.
+
+P.S.
+
+If you really want to save energy also on the operation of the pump, you can start by returning the circulator configuration to modulating mode (if it was set to maximum speed) while simultaneously lowering the PWM Min (17.6.3) by progressively reducing it. Be careful because in this way the amount of heat that is brought by the heat pump to the building is reduced, therefore the Tmin identified before could be too low, consequently lowering the building's ambient T, forcing, paradoxically, to raise the Parallel Shift values and therefore to make the heat pump work at higher frequencies to produce water at a higher temperature to maintain comfort. In my personal opinion, saving on the consumption of the pump (which consumes 50/100W if it goes badly) at the expense of comfort or the consumption of the compressor (much more energy-hungry) is not worth it. On my system I have the pump set to a fixed high speed.
+
+Example of offset and curve slope adjustment
+
+Basic Situation
+with a desired T (T Day) of 20°C in the morning and evening the room temperature is lower than desired (zones A and C of the graph), while in the central band of the day (zone B) it is warmer than required.
+
+
+ °C
+    ^                                                                       
+    │ A. + Pendenza                                           C.  + Pendenza      
+    │    ^                                                              ^    
+    │    │                                                              │  
+22° │    │          ┌─────────────────┼────────────────────┐            │  
+    │    │       ┌──┘                 │                    └──┐         │  
+20°─┼────┼────┬──┴────────────────────┼───────────────────────┴───┬─────┼────────  Room temp setpoint
+    │    │ ┌──┘                       │                           └───┐ │  
+18° │   ┌──┘                          │                               └───         Actual room temp
+    │ ──┘                             v                                     
+    │                         B. - Offset (spost parall)                                             
+    │                                                                      
+    │                                                                      
+    │                     ┌──────────────────────────────┐                 
+    │             ┌───────┘                              └──────┐        
+    │    ┌────────┘                                             └──────┐            External Temp
+    │────┘                                                             └── 
+  ──┼────────────────────────────────────────────────────────────────────────────>
+    │                                                                      
+       7     8     9    10   11    12    13    14   15  16   17  18  19  20          Hour                               
+                                                                           
+1st Correction - 
+Lowering the parallel shif (offset), the entire curve goes down
+
+ °C
+    ^                                                                       
+    │    
+    │                                                                       
+22° │                                                                     
+    │               ┌─────────────────┼────────────────────┐              
+20°─┼───────────────┼─────────────────┼────────────────────┼───────────────────  Room temp setpoint
+    │            ┌──┘                 │                    └──┐   
+18° │         ┌──┘                    v                       └───┐   
+    │      ┌──┘                                                   └─── Actual room temp
+    │    ──┘                                                                  
+    │                         B. - Offset (spost parall)                                             
+    │                                                                      
+    │                                                                      
+    │                     ┌──────────────────────────────┐                 
+    │             ┌───────┘                              └──────┐        
+    │    ┌────────┘                                             └──────┐            External Temp
+    │────┘                                                             └── 
+  ──┼────────────────────────────────────────────────────────────────────────────>
+    │                                                                      
+       7     8     9    10   11    12    13    14   15  16   17  18  19  20          Hour     
+       
+
+2nd Correction - We raise the slope of the curve, the curve only rises in the coldest hous of the day
+
+ °C
+    ^                                                                       
+    │    
+    │    ^                                                               ^   
+22° │    │                                                               │ 
+    │    │   ┌─────────────────────────────────────────────────────┐     │         
+20°─┼────┼───┼─────────────────────────────────────────────────────┼─────┼─────  Room temp setpoint
+    │ ───┼───┘                                                     └─────┼───────┐    
+18° │                                                                             Actual room temp  
+    │                                                                               
+    │    
+    │                                                                                                      
+    │                                                                      
+    │                                                                      
+    │                     ┌──────────────────────────────┐                 
+    │             ┌───────┘                              └──────┐        
+    │    ┌────────┘                                             └──────┐            External Temp
+    │────┘                                                             └── 
+  ──┼────────────────────────────────────────────────────────────────────────────>
+    │                                                                      
+       7     8     9    10   11    12    13    14   15  16   17  18  19  20          Hour   
+       
+       
+Example of error:
+We raise the parallel shif/offset to fix the temperature in the morning and also in the evening, the entire curve
+rises, even when it is not needed, in the central periods of the day, the HP will make many on/off during the day due to the exceeding of the Target T
+
+																		   
+ °C
+    ^                                                                       
+    │   A                             B                                 C
+    │   ^                             ^                                 ^    
+    │   │                             │                                 │  
+24° │   │           ┌──────────────────────────────────────┐            │  
+    │   │        ┌──┘                                      └──┐         │  
+22° │         ┌──┘                                            └───┐            
+    │      ┌──┘                                                   └───┐    
+20°─┼─────┬┴──────────────────────────────────────────────────────────┴──┬──────────────  Room temp setpoint
+    │   ──┘                                                              └── Actual room temp    
+    │                                                                       
+    │                                                                      
+    │                                                                      
+    │                                                                      
+    │                                                                      
+    │                     ┌──────────────────────────────┐                 
+    │             ┌───────┘                              └──────┐        
+    │    ┌────────┘                                             └──────┐            External Temp
+    │────┘                                                             └── 
+  ──┼────────────────────────────────────────────────────────────────────────────>
+    │                                                                      
+       7     8     9    10   11    12    13    14   15  16   17  18  19  20          Hour 
+       
